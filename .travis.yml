@@ -88,7 +88,12 @@ before_install:
   fi
 - if [ "$TRAVIS_JOB_NAME" == "msys2" ]; then
     choco upgrade --no-progress -y msys2 &&
-    $msys2 pacman --sync --clean --noconfirm;
+    /c/tools/msys64/usr/bin/bash -lc "echo -e '[igagis_msys]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/msys' >> /etc/pacman.conf" &&
+    /c/tools/msys64/usr/bin/bash -lc "echo -e '[igagis_mingw64]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw64' >> /etc/pacman.conf" &&
+    /c/tools/msys64/usr/bin/bash -lc "echo -e '[igagis_mingw32]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw32' >> /etc/pacman.conf" &&
+    /c/tools/msys64/usr/bin/pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade &&
+    /c/tools/msys64/usr/bin/pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade &&
+    /c/tools/msys64/usr/bin/pacman -Sy --noconfirm myci;
   fi
 - export PACKAGE_VERSION=$(myci-deb-version.sh debian/changelog)
 

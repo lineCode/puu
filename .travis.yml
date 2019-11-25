@@ -87,9 +87,7 @@ before_install:
     pod install --project-directory=xcode;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "msys2" ]; then
-    ([[ ! -f C:/tools/msys64/msys2_shell.cmd ]] && rm -rf C:/tools/msys64) &&
     choco upgrade --no-progress -y msys2 &&
-    taskkill //IM gpg-agent.exe //F &&
     $msys2 pacman --sync --clean --noconfirm;
   fi
 - export PACKAGE_VERSION=$(myci-deb-version.sh debian/changelog)

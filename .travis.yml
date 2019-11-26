@@ -88,14 +88,14 @@ before_install:
   fi
 - if [ "$TRAVIS_JOB_NAME" == "msys2" ]; then
     choco upgrade --no-progress -y msys2 &&
-    export msys2="/c/tools/msys64/msys2_shell.cmd -defterm -no-start -full-path -here -c" &&
+    export shell="/c/tools/msys64/msys2_shell.cmd -defterm -no-start -full-path -here -c" &&
 
-    $msys2 "echo -e '[igagis_msys]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/msys' >> /etc/pacman.conf" &&
-    $msys2 "echo -e '[igagis_mingw64]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw64' >> /etc/pacman.conf" &&
-    $msys2 "echo -e '[igagis_mingw32]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw32' >> /etc/pacman.conf" &&
-    $msys2 "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
-    $msys2 "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
-    $msys2 "pacman -Sy --noconfirm myci";
+    $shell "echo -e '[igagis_msys]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/msys' >> /etc/pacman.conf" &&
+    $shell "echo -e '[igagis_mingw64]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw64' >> /etc/pacman.conf" &&
+    $shell "echo -e '[igagis_mingw32]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw32' >> /etc/pacman.conf" &&
+    $shell "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
+    $shell "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
+    $shell "pacman -Sy --noconfirm myci";
   fi
 - export PACKAGE_VERSION=$(myci-deb-version.sh debian/changelog)
 
@@ -116,6 +116,9 @@ before_script:
     chmod +x XcodeProjAdder &&
     (cd xcode/$PACKAGE_NAME && ../../XcodeProjAdder -XCP $PACKAGE_NAME.xcodeproj -SCSV `echo $(find ../../src -type f -name *.cpp) | sed -E -e 's/ /,/g'`)
   fi
+- if [ "$TRAVIS_JOB_NAME" == "msys2" ]; then
+    $shell "cd $(pwd) && myci-apply-version.sh -v \$(myci-deb-version.sh debian/changelog) msys2/PKGBUILD.in";
+  fi
 
 script:
 - if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -z "$TRAVIS_JOB_NAME" ]; then
@@ -133,6 +136,9 @@ script:
     (cd android && ./gradlew build) &&
     myci-apply-version.sh -v $PACKAGE_VERSION android/*.pom.in &&
     myci-apply-version.sh -v $PACKAGE_VERSION android/*.aar.in --filename-only;
+  fi
+- if [ "$TRAVIS_JOB_NAME" == "msys2" ]; then
+    $shell "cd $(pwd)/msys2 && makepkg-mingw --syncdeps --noconfirm --skipinteg";
   fi
 
 

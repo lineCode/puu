@@ -17,6 +17,12 @@ addons:
     - binfmt-support
     - qemu-user-static
     - myci
+  homebrew:
+    update: true
+    taps:
+    - igagis/tap
+    packages:
+    - myci
 
 matrix:
   include:
@@ -49,7 +55,6 @@ env:
   - secure: "hTb0tpvTrx216BXy9K/4x4rN3LqQXWilDVTFZBwatTWLLscWr/PZSk222niHYYiDDlBV6OaSWDp63QJiY1rtLhof6dSR6Omvdbb35toxm/ZpA4s+wTOAzgXbaYKFamu6Qwt/e+gceDNbXtyexLJb6GBPWA98dN7q/sCp7yT6KtUQdQ9/xu1vOucfQqu81cACWrXwWVPLt6uAOoJXs3MngTQHX08bIOhepfZ/MuwWra9yAAneR8ekt+Gb854x9M5CSq6k90h36kidNoOAyWDOxg7rEGRKKlD5m/TPCowDZafFXzs2KE2DWD4QUDrx+DcV29Ni6UkwBf6fuj+HaGrSuH40SvNvTEXt0sj87zrL0PTKHWLDcY5xZRLp89OrM+ikKUcQlQPn9NLM2C7OqxORo0ucQpLgMNKmCj5pe+nkSLAE1+zo6icwOP3i4nvQDDw1Cl7i9qBXdB+lIthvPBWnjmW4DVielNx9AEriDlKv7dCB+hafpxhLPf04vmtgyo6URbtI2Ov77Emc/cveFOaOpJOFZKsXvqWlWTkTLMlfQ/e6OsAZ7si9QBxLUuxxdbXyL8CczIOys/V7eBnjJolqHCoois2KDqpNp26t1Z5U/YG4TEzQBHAK9hCMVhaiGzMNSiJxen80UT6HQW7BM9ZxAdGQ1F2DaF2/QY4T82qTZ1o="
   - MYCI_GIT_USERNAME=igagis
   - MYCI_GIT_ACCESS_TOKEN=$PRORAB_GIT_ACCESS_TOKEN
-  - PACKAGE_VERSION=$(myci-deb-version.sh debian/changelog)
   - PACKAGE_NAME=puu
   matrix:
   - OS_REL=xenial OS=ubuntu DOCKER_IMAGE=$OS:$OS_REL PACKAGE_TYPE=deb
@@ -71,17 +76,9 @@ before_install:
     fi;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "macosx" ]; then
-    brew update > /dev/null &&
-    brew tap igagis/tap &&
-    brew update > /dev/null &&
-    brew install myci prorab prorab-extra libutki libpapki libunikod libclargs;
+    brew install prorab prorab-extra libutki libpapki libunikod libclargs;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "ios" ]; then
-    brew update > /dev/null &&
-    brew tap igagis/tap &&
-    brew update > /dev/null &&
-    brew install myci &&
-
     sudo gem install cocoapods &&
     pod repo add --silent igagis https://$MYCI_GIT_USERNAME:$MYCI_GIT_ACCESS_TOKEN@github.com/igagis/cocoapods-repo.git &&
     pod install --project-directory=xcode;
@@ -95,7 +92,7 @@ before_install:
     $shell "echo -e '[igagis_mingw32]\\nSigLevel = Optional TrustAll\\nServer = https://dl.bintray.com/igagis/msys2/mingw32' >> /etc/pacman.conf" &&
     $shell "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
     $shell "pacman --noconfirm --ask 20 --sync --refresh --refresh --sysupgrade --sysupgrade" &&
-    $shell "pacman -Sy --noconfirm myci";
+    $shell "pacman -Sy --noconfirm myci mingw-w64-x86_64-toolchain mingw-w64-i686-toolchain";
   fi
 - export PACKAGE_VERSION=$(myci-deb-version.sh debian/changelog)
 
